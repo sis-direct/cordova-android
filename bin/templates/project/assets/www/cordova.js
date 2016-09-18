@@ -1,5 +1,5 @@
 // Platform: android
-// 533e1bfdbc57d54106ca39a02b21a1909f84fda7
+// 2fd4bcb84048415922d13d80d35b8d1668e8e150
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -8,9 +8,9 @@
  to you under the Apache License, Version 2.0 (the
  "License"); you may not use this file except in compliance
  with the License.  You may obtain a copy of the License at
-
+ 
      http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing,
  software distributed under the License is distributed on an
  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var PLATFORM_VERSION_BUILD_LABEL = '5.2.0-dev';
+var PLATFORM_VERSION_BUILD_LABEL = '5.3.0-dev';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -330,7 +330,7 @@ module.exports = cordova;
 
 });
 
-// file: cordova-android/cordova-js-src/android/nativeapiprovider.js
+// file: /Users/jbowser/cordova/cordova-android/cordova-js-src/android/nativeapiprovider.js
 define("cordova/android/nativeapiprovider", function(require, exports, module) {
 
 /**
@@ -353,7 +353,7 @@ module.exports = {
 
 });
 
-// file: cordova-android/cordova-js-src/android/promptbasednativeapi.js
+// file: /Users/jbowser/cordova/cordova-android/cordova-js-src/android/promptbasednativeapi.js
 define("cordova/android/promptbasednativeapi", function(require, exports, module) {
 
 /**
@@ -862,7 +862,7 @@ module.exports = channel;
 
 });
 
-// file: cordova-android/cordova-js-src/exec.js
+// file: /Users/jbowser/cordova/cordova-android/cordova-js-src/exec.js
 define("cordova/exec", function(require, exports, module) {
 
 /**
@@ -897,10 +897,11 @@ var cordova = require('cordova'),
         // For the ONLINE_EVENT to be viable, it would need to intercept all event
         // listeners (both through addEventListener and window.ononline) as well
         // as set the navigator property itself.
-        ONLINE_EVENT: 2
+        ONLINE_EVENT: 2,
+        EVAL_BRIDGE: 3
     },
     jsToNativeBridgeMode,  // Set lazily.
-    nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT,
+    nativeToJsBridgeMode = nativeToJsModes.EVAL_BRIDGE,
     pollEnabled = false,
     bridgeSecret = -1;
 
@@ -932,7 +933,6 @@ function androidExec(success, fail, service, action, args) {
 
     var callbackId = service + cordova.callbackId++,
         argsJson = JSON.stringify(args);
-
     if (success || fail) {
         cordova.callbacks[callbackId] = {success:success, fail:fail};
     }
@@ -952,6 +952,17 @@ function androidExec(success, fail, service, action, args) {
 }
 
 androidExec.init = function() {
+    //CB-11828
+    //This failsafe checks the version of Android and if it's Jellybean, it switches it to
+    //using the Online Event bridge for communicating from Native to JS
+    //
+    //It's ugly, but it's necessary.
+    var check = navigator.userAgent.toLowerCase().match(/android\s[0-9].[0-9]/);
+    var version_code = check[0].match(/4.[0-3].*/);
+    if (version_code != null && nativeToJsBridgeMode == nativeToJsModes.EVAL_BRIDGE) {
+      nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT;
+    }
+
     bridgeSecret = +prompt('', 'gap_init:' + nativeToJsBridgeMode);
     channel.onNativeReady.fire();
 };
@@ -1611,7 +1622,7 @@ exports.reset();
 
 });
 
-// file: cordova-android/cordova-js-src/platform.js
+// file: /Users/jbowser/cordova/cordova-android/cordova-js-src/platform.js
 define("cordova/platform", function(require, exports, module) {
 
 // The last resume event that was received that had the result of a plugin call.
@@ -1721,7 +1732,7 @@ function onMessageFromNative(msg) {
 
 });
 
-// file: cordova-android/cordova-js-src/plugin/android/app.js
+// file: /Users/jbowser/cordova/cordova-android/cordova-js-src/plugin/android/app.js
 define("cordova/plugin/android/app", function(require, exports, module) {
 
 var exec = require('cordova/exec');
